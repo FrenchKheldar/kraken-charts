@@ -51,14 +51,34 @@ for p in list_players:
         stacked_df = pd.concat([stacked_df, total_row.to_frame().T]).reset_index(drop=True)
 
 # TOP 10 goal scorers
-top_goalscorers = stacked_df.loc[stacked_df.Season == "Total"].sort_values("G",ascending=False).iloc[:10][['Player', 'Flag', 'G']]
+top_goalscorers = stacked_df.loc[stacked_df.Season == "Total"].sort_values("G", ascending=False).iloc[:15][['Player', 'Flag', 'G']]
 fig = go.Figure()
 fig = px.bar(top_goalscorers, y='G', x='Player')
 fig.show()
 fig.write_image("top_goalscorers.png")
-# for p in top_goalscorers:
-#     fig.add_trace(go.Bar(x=p.split()[-1], y=top_goalscorers))
 
+#for p in top_goalscorers.Player:
+#    print(p, [s for s in stacked_df.loc[stacked_df.Player == p].Season])
+def get_goals(df,p,s):
+    try:
+        return df[(df.Player == p) & (df.Season == s)].G.values[0]
+    except IndexError:
+        return 0
+# Maybe I should think about setting a different index for the subset dfs
+fig = go.Figure()
+names = [p.split()[-1] for p in top_goalscorers.Player]
+for s in seasons:
+    goals = [get_goals(stacked_df,p,s) for p in top_goalscorers.Player]
+    # goals = []
+    # for p in top_goalscorers.Player:
+    #     print(p)
+    #     goals.append(stacked_df[(stacked_df.Player == p) & (stacked_df.Season == s)].G.values[0] )
+    if s != 'Total':
+        fig.add_trace(go.Bar(name=s, x=names, y=goals))
+
+fig.update_layout(barmode='stack')
+fig.show()
+fig.write_image("top_goalscorers_stacked.png")
 # TODO
 ## Use better flags like https://github.com/hampusborgos/country-flags
 ## or https://github.com/google/region-flags
