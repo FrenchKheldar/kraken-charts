@@ -34,6 +34,9 @@ for f in sorted(glob.glob("season*.csv")):
     #print(data[-1]["GWG"])
 stacked_df = pd.concat(df.assign(Season = season) for df, season in zip(data, seasons)).reset_index(drop=True)
 
+# Adding additional stats
+stacked_df["PPP"] = stacked_df["PPG"] + stacked_df["PPA"]
+
 number_seasons = len(seasons)
 # Build list of unique players
 list_players = stacked_df.Player.unique().tolist()
@@ -120,7 +123,7 @@ def plotAlltimeLeaders(stat, statName, num, singleSeasonRecord, team):
     fig.update_layout(title_text=f"{team} All-Time Leaders in {statName}")
     #fig.show()
     fig.write_image(f"top_leaders_{stat}_stacked.png")
-
+    fig.write_html(f"top_leaders_{stat}_stacked.html")
 team = "Seattle Kraken"
 statName = {"GP": "Games Played",
             "G": "Goals Scored",
@@ -133,13 +136,14 @@ statName = {"GP": "Games Played",
             "GWG": "Game-Winnning Goals",
             "EVA": "Even-Strength Assists",
             "PPA": "Powerplay Assists",
+            "PPP": "Powerplay Points",
             "SHA": "Short-handed Assists",
             "S": "Shots On Goal",
             "BLK": "Blocked Shots",
             "HIT": "Hits"
             }
 single_season_records = {}
-for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "PPA", "SHA", "S", "BLK", "HIT"]:
+for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "PPA", "PPP", "SHA", "S", "BLK", "HIT"]:
     single_season_records[stat] = stacked_df[stacked_df.Season != 'Total'][stat].max()
     plotAlltimeLeaders(stat, statName[stat], 15, single_season_records[stat], team)
 # TODO
