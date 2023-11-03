@@ -54,7 +54,11 @@ for p in list_players:
         total_row.loc["Player"] = p
         total_row.loc["Season"] = "Total"
         total_row.loc["Age"] = stacked_df.loc[stacked_df.Player == p].shape[0]
-        total_row.loc["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
+        try:
+            total_row.loc["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
+        except IndexError:
+            print("Missing flag",p)
+            total_row.loc["Flag"] = None
         total_row.loc["url"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["url"]
         total_row.loc["Pos"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["Pos"]
         if total_row.loc["G"] == 0:
@@ -66,7 +70,7 @@ for p in list_players:
             total_row.loc["FO%"] = 0.
         else:
             total_row.loc["FO%"] = total_row.loc["FOW"] / (total_row.loc["FOW"] + total_row.loc["FOL"]) * 100
-        stacked_df = pd.concat([stacked_df, total_row.to_frame().T]).reset_index(drop=True)
+        stacked_df = pd.concat([stacked_df, total_row.to_frame().T], sort=True).reset_index(drop=True)
 
 stacked_df["PlayerAndFlag"] = stacked_df["Player"] + stacked_df["Flag"]
 
@@ -110,19 +114,34 @@ def plotAlltimeLeaders(stat, statName, num, singleSeasonRecord, team):
 
     for n, s in enumerate(seasons):
         stats = [get_stat(stacked_df, p, s, stat) for p in top_leaders.Player]
-        print(stats[5])
+        #print(stats[5])
         if s != 'Total':
+            #colors = [get_color_spectrum(n,light_blue,dark_blue,number_seasons) for st in stats]
+            #fig.add_trace(go.Bar(name=s, x=names, y=stats,
+            #                     marker_color=colors,
+            #                     )
+            #              )
             colors = [red_rgb if st == single_season_records[stat] \
                         else get_color_spectrum(n,light_blue,dark_blue,number_seasons) for st in stats]
             fig.add_trace(go.Bar(name=s, x=names, y=stats,
                                  marker_color=colors,
+                                 showlegend=False,
                                  )
                           )
+            fig.add_trace(go.Bar(x=[None],y=[None],
+                                     name=s,
+                                     marker_color=get_color_spectrum(n,light_blue,dark_blue,number_seasons), 
+                                     showlegend=True))
+
+    fig.add_trace(go.Bar(x=[None],y=[None],
+                         name='Single Season Record',
+                         marker_color=red_rgb,
+                         showlegend=True))
 
     fig.update_layout(barmode='stack')
     fig.update_layout(title_text=f"{team} All-Time Leaders in {statName}")
     #fig.show()
-    fig.write_image(f"top_leaders_{stat}_stacked.png")
+    fig.write_image(f"top_leaders_{stat}_stacked.png",scale=2)
     fig.write_html(f"top_leaders_{stat}_stacked.html")
 team = "Seattle Kraken"
 statName = {"GP": "Games Played",
@@ -149,3 +168,5 @@ for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "P
 # TODO
 ## Use better flags like https://github.com/hampusborgos/country-flags
 ## or https://github.com/google/region-flags
+## Add plus/minus with a staggered stack chart
+
