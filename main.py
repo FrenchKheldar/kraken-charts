@@ -21,7 +21,9 @@ def get_color_spectrum(n, color1, color2, number_bands=15):
 
 
 # Load citizenship data
-flags = pd.read_csv("flags.csv", header=0)
+input_fd = open("flags.csv", encoding="utf-8")
+#flags = pd.read_csv(input_fd, header=0, encoding="latin1", engine="python")
+flags = pd.read_csv(input_fd, header=0, encoding="utf-8-sig", engine="python")
 
 
 # Load each season data for skaters
@@ -141,7 +143,7 @@ def plotAlltimeLeaders(df, stat, statName, num, singleSeasonRecord, team, goalie
     """
 
 
-    top_leaders = df.loc[df.Season == "Total"].sort_values(stat, ascending=False).iloc[:num][['Player', 'Flag', stat]].reset_index(drop=True)
+    top_leaders = df.loc[df.Season == "Total"].sort_values(stat, ascending=False).iloc[:num][['Player', 'PlayerAndFlag', stat]].reset_index(drop=True)
 
     # Basic plot
     # fig = go.Figure()
@@ -153,8 +155,9 @@ def plotAlltimeLeaders(df, stat, statName, num, singleSeasonRecord, team, goalie
 
     # Maybe I should think about setting a different index for the subset dfs
     fig = go.Figure()
-    names = [f"{p.split()[-1]} {f}" for p,f in zip(top_leaders.Player,top_leaders.Flag)]
-    print([n for n in names if "nan" in n])
+    #names = [f"{p.split()[-1]} {f}" for p,f in zip(top_leaders.Player,top_leaders.Flag)]
+    names = [f for f in top_leaders['PlayerAndFlag']]
+    #print([n for n in names if "nan" in n])
     for n, s in enumerate(seasons):
         stats = [get_stat(df, p, s, stat) for p in top_leaders.Player]
         #print(stats[5])
@@ -166,16 +169,31 @@ def plotAlltimeLeaders(df, stat, statName, num, singleSeasonRecord, team, goalie
             #              )
             colors = [red_rgb if st == single_season_records[stat] \
                         else get_color_spectrum(n,light_blue,dark_blue,number_seasons) for st in stats]
-            fig.add_trace(go.Bar(name=s, x=names, y=stats,
+            if stat == "P_M":
+                fig.add_trace(go.Bar(name=s, x=names, y=stats,
                                  marker_color=colors,
                                  showlegend=False,
-                                 )
+                                 offsetgroup=0,
+                                 width=0.3,
+                                 offset=0.3*(n-1),
+                               )
                           )
-            fig.add_trace(go.Bar(x=[None],y=[None],
+            else:
+                fig.add_trace(go.Bar(name=s, x=names, y=stats,
+                                     marker_color=colors,
+                                     showlegend=False,
+                                    )
+                             )
+
+        fig.add_trace(go.Bar(x=[None],y=[None],
                                      name=s,
                                      marker_color=get_color_spectrum(n,light_blue,dark_blue,number_seasons), 
                                      showlegend=True))
 
+    if stat == "P_M":
+        fig.update_layout(barmode='overlay') #, bargroupgap=0.2)
+    else:
+        fig.update_layout(barmode='group')
     fig.add_trace(go.Bar(x=[None],y=[None],
                          name='Single Season Record',
                          marker_color=red_rgb,
@@ -210,10 +228,12 @@ statName = {"GP": "Games Played",
             "SHA": "Short-handed Assists",
             "S": "Shots On Goal",
             "BLK": "Blocked Shots",
-            "HIT": "Hits"
+            "HIT": "Hits",
+            "P_M": "Plus/Minus",
             }
 single_season_records = {}
-for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "PPA", "PPP", "SHA", "S", "BLK", "HIT"]:
+for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "PPA",
+             "PPP", "SHA", "S", "BLK", "HIT", "P_M"]:
     single_season_records[stat] = stacked_df[stacked_df.Season != 'Total'][stat].max()
     plotAlltimeLeaders(stacked_df, stat, statName[stat], 15, single_season_records[stat], team)
 
