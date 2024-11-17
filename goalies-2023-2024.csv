@@ -1,5 +1,6 @@
 # Source: https://www.hockey-reference.com/teams/SEA/2024.html
-Rk,Player,Age,GP,GS,W,L,T/O,GA,SA,SV,SV%,GAA,SO,MIN,QS,QS%,RBS,GA%-,GSAA,adjGAA,GPS,url
-1,Joey Daccord,27,26,23,12,5,8,56,742,686,.925,2.23,2,1510,16,.696,2,78,16.1,2.27,5.9,daccojo01
-2,Philipp Grubauer,32,17,17,5,9,1,50,432,382,.884,3.25,0,922,4,.235,3,119,-8.0,3.32,1.7,grubaph01
-3,Chris Driedger,29,1,1,1,0,0,1,38,37,.974,1.00,0,60,1,1.000,0,,,1.00,0.5,driedch01
+Rk,Player,Age,GP,GS,W,L,T/O,GA,Shots,SV,SV%,GAA,SO,MIN,QS,QS%,RBS,GA%-,GSAA,GAA/A,GPS,G,A,PTS,PIM,Awards,url
+1,Philipp Grubauer,32,36,34,14,16,2,95,941,846,.899,2.85,2,1996:36,15,.441,6,104,-4.0,2.95,5.0,0,1,1,4,,grubaph01
+2,Joey Daccord,27,50,46,19,18,11,116,1374,1258,.916,2.46,3,2832:47,30,.652,5,87,16.8,2.52,9.6,0,0,0,0,ASnhl-12,daccojo01
+3,Chris Driedger,29,2,2,1,1,0,5,60,55,.917,2.51,0,119:35,1,.500,1,86,0.8,2.51,0.4,0,0,0,0,,driedch01
+

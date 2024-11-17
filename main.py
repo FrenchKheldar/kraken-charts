@@ -19,6 +19,34 @@ def get_color_spectrum(n, color1, color2, number_bands=15):
     #print(colorname)
     return colorname
 
+def convert_to_seconds(time_str):
+    """Converts a string in the format 'min:sec' to seconds (float)."""
+    minutes, seconds = time_str.split(':')
+    return int(minutes) * 60 + int(seconds)
+def convert_to_minutes(time_value):
+    """Converts a string in the format 'min:sec' to seconds (float)."""
+    if isinstance(time_value,str):
+        if ':' in time_value:
+            minutes, seconds = time_value.split(':')
+        else:
+            minutes = time_value
+            seconds = 0
+        return float(minutes) + float(seconds) / 60.
+    elif isinstance(time_value,int):
+        return float(time_value)
+
+def sum_numeric_rows(df):
+    # Create a DataFrame with only numeric columns
+    numeric_df = df.select_dtypes(include='number')
+
+    # Calculate the sum of each row in the numeric DataFrame
+    row_sums = numeric_df.sum(axis=0)
+
+    # Add the row sums to the original DataFrame
+    #`df['row_sum'] = row_sums
+
+    #return row_sums.to_frame().T
+    return row_sums.to_frame().T
 
 # Load citizenship data
 input_fd = open("flags.csv", encoding="utf-8")
@@ -33,10 +61,11 @@ for f in sorted(glob.glob("season*.csv")):
     seasons.append(Path(f).stem.split('season-')[-1])
     print(f"Loading {f}...")
     #data.append(pd.read_csv(f, header=0, skiprows=1, index_col=0, usecols=lambda x: x not in ['Rk']))
-    data.append(pd.read_csv(f, header=0, skiprows=1, usecols=lambda x: x not in ['Rk']))
+    data.append(pd.read_csv(f, header=0, skiprows=1, usecols=lambda x: x not in ['Rk','ATOI']))
     #print(data[-1]["GWG"])
 stacked_df = pd.concat(df.assign(Season = season) for df, season in zip(data, seasons)).reset_index(drop=True)
 
+stacked_df['TOI'] = stacked_df["TOI"].apply(convert_to_minutes)
 # Adding additional stats
 stacked_df["PPP"] = stacked_df["PPG"] + stacked_df["PPA"]
 
@@ -54,27 +83,28 @@ for p in list_players:
         total_row["Age"] = 1
         stacked_df = pd.concat([stacked_df, total_row]).reset_index(drop=True)
     else:
-        total_row = stacked_df.loc[stacked_df["Player"] == p].sum()
-        total_row.loc["Player"] = p
-        total_row.loc["Season"] = "Total"
-        total_row.loc["Age"] = stacked_df.loc[stacked_df.Player == p].shape[0]
+#        total_row = stacked_df.loc[stacked_df["Player"] == p].sum(numeric_only=True)
+        total_row = sum_numeric_rows(stacked_df.loc[stacked_df["Player"] == p])
+        total_row["Player"] = p
+        total_row["Season"] = "Total"
+        total_row["Age"] = stacked_df.loc[stacked_df.Player == p].iloc[-1]["Age"]
         try:
-            total_row.loc["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
+            total_row["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
         except IndexError:
             print("Missing flag",p)
-            total_row.loc["Flag"] = None
-        total_row.loc["url"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["url"]
-        total_row.loc["Pos"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["Pos"]
-        if total_row.loc["G"] == 0:
-            total_row.loc["S%"] = 0.
+            total_row["Flag"] = None
+        total_row["url"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["url"]
+        total_row["Pos"] = stacked_df.loc[stacked_df.Player == p].iloc[0]["Pos"]
+        if total_row.loc[0, "G"] == 0:
+            total_row["S%"] = 0.
         else:
-            total_row.loc["S%"] = total_row.loc["G"] / total_row.loc["S"] * 100
-        total_row.loc["ATOI"] = total_row.loc["TOI"] / total_row.loc["GP"]
-        if total_row.loc["FOW"] == 0:
-            total_row.loc["FO%"] = 0.
+            total_row["S%"] = total_row["G"] / total_row["SOG"] * 100
+        total_row["ATOI"] = total_row["TOI"] / total_row["GP"]
+        if total_row.loc[0, "FOW"] == 0:
+            total_row["FO%"] = 0.
         else:
-            total_row.loc["FO%"] = total_row.loc["FOW"] / (total_row.loc["FOW"] + total_row.loc["FOL"]) * 100
-        stacked_df = pd.concat([stacked_df, total_row.to_frame().T], sort=True).reset_index(drop=True)
+            total_row["FO%"] = total_row["FOW"] / (total_row["FOW"] + total_row["FOL"]) * 100
+        stacked_df = pd.concat([stacked_df, total_row], sort=True).reset_index(drop=True)
 
 stacked_df["PlayerAndFlag"] = stacked_df["Player"] + stacked_df["Flag"]
 
@@ -101,21 +131,21 @@ for p in list_goalies:
         total_row["Age"] = 1
         stacked_df = pd.concat([stacked_dfg, total_row]).reset_index(drop=True)
     else:
-        total_row = stacked_dfg.loc[stacked_dfg["Player"] == p].sum()
-        total_row.loc["Player"] = p
-        total_row.loc["Season"] = "Total"
-        total_row.loc["Age"] = stacked_dfg.loc[stacked_dfg.Player == p].shape[0]
+        total_row = sum_numeric_rows(stacked_dfg.loc[stacked_dfg["Player"] == p])
+        total_row["Player"] = p
+        total_row["Season"] = "Total"
+        total_row["Age"] = stacked_dfg.loc[stacked_dfg.Player == p].shape[0]
         try:
-            total_row.loc["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
+            total_row["Flag"] = flags.loc[flags.Player == p].iloc[0]["Flag"]
         except IndexError:
             print("Missing flag",p)
-            total_row.loc["Flag"] = None
-        total_row.loc["url"] = stacked_dfg.loc[stacked_dfg.Player == p].iloc[0]["url"]
-        if total_row.loc["GA"] == 0:
-            total_row.loc["SV%"] = 100.
+            total_row["Flag"] = None
+        total_row["url"] = stacked_dfg.loc[stacked_dfg.Player == p].iloc[0]["url"]
+        if total_row.loc[0, "GA"] == 0:
+            total_row["SV%"] = 100.
         else:
-            total_row.loc["SV%"] = total_row.loc["SV"] / total_row.loc["SA"] * 100
-        stacked_dfg = pd.concat([stacked_dfg, total_row.to_frame().T], sort=True).reset_index(drop=True)
+            total_row["SV%"] = total_row["SV"] / total_row["Shots"] * 100
+        stacked_dfg = pd.concat([stacked_dfg, total_row], sort=True).reset_index(drop=True)
 
 stacked_dfg["PlayerAndFlag"] = stacked_dfg["Player"] + stacked_dfg["Flag"]
 
@@ -226,14 +256,14 @@ statName = {"GP": "Games Played",
             "PPA": "Powerplay Assists",
             "PPP": "Powerplay Points",
             "SHA": "Short-handed Assists",
-            "S": "Shots On Goal",
+            "SOG": "Shots On Goal",
             "BLK": "Blocked Shots",
             "HIT": "Hits",
             "P_M": "Plus/Minus",
             }
 single_season_records = {}
 for stat in ["GP", "G", "A", "PTS", "PIM", "EVG", "PPG", "SHG", "GWG", "EVA", "PPA",
-             "PPP", "SHA", "S", "BLK", "HIT", "P_M"]:
+             "PPP", "SHA", "SOG", "BLK", "HIT", "P_M"]:
     single_season_records[stat] = stacked_df[stacked_df.Season != 'Total'][stat].max()
     plotAlltimeLeaders(stacked_df, stat, statName[stat], 15, single_season_records[stat], team)
 
@@ -243,7 +273,7 @@ statName = {"GP": "Games Played",
             "W": "Wins",
             "L": "Losses",
             "GA": "Goals Against",
-            "SA": "Shots Against",
+            "Shots": "Shots Against",
             "SV": "Saves",
             "SO": "Shutouts",
             "QS": "Quality Starts",

@@ -1,5 +1,5 @@
 # Source: https://www.hockey-reference.com/teams/SEA/2023.html
-Rk,Player,Age,GP,GS,W,L,T/O,GA,SA,SV,SV%,GAA,SO,MIN,QS,QS%,RBS,GA%-,GSAA,adjGAA,GPS,url
-1,Martin Jones,33,48,42,27,13,3,131,1145,1014,.886,2.99,3,2626,20,.476,14,119,-21.4,3.02,4.3,jonesma02
-2,Philipp Grubauer,31,39,36,17,14,4,98,930,832,.895,2.85,0,2066,22,.611,11,110,-9.0,2.88,4.4,grubaph01
-3,Joey Daccord,26,5,4,2,1,1,13,130,117,.900,3.14,0,248,1,.250,0,,,3.14,0.7,daccojo01
+Rk,Player,Age,GP,GS,W,L,T/O,GA,Shots,SV,SV%,GAA,SO,MIN,QS,QS%,RBS,GA%-,GSAA,GAA/A,GPS,G,A,PTS,PIM,Awards,url
+1,Philipp Grubauer,31,39,36,17,14,4,98,930,832,.895,2.85,0,2065:37,22,.611,11,110,-9.0,2.88,4.4,0,1,1,0,,grubaph01
+2,Martin Jones,33,48,42,27,13,3,131,1145,1014,.886,2.99,3,2625:39,20,.476,14,119,-21.4,3.02,4.3,0,0,0,0,,jonesma02
+3,Joey Daccord,26,5,4,2,1,1,13,130,117,.900,3.14,0,248:08,1,.250,0,104,-0.6,3.14,0.7,0,0,0,0,,daccojo01
