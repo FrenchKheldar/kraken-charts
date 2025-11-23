@@ -1,2 +1,5 @@
-plotly~=5.13.1
-pandas~=1.5.3
+beautifulsoup4
+kaleido
+plotly
+pandas
+requests
