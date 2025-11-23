@@ -1,0 +1,5 @@
+# Data downloaded from: https://www.hockey-reference.com/teams/SEA/2022.html
+Rk,Player,Age,Goalie Stats_GP,Goalie Stats_GS,Goalie Stats_W,Goalie Stats_L,Goalie Stats_T/O,Goalie Stats_GA,Goalie Stats_Shots,Goalie Stats_SV,Goalie Stats_SV%,Goalie Stats_GAA,Goalie Stats_SO,Goalie Stats_MIN,Goalie Stats_QS,Goalie Stats_QS%,Goalie Stats_RBS,Goalie Stats_GA%-,Goalie Stats_GSAA,Goalie Stats_GAA/A,Goalie Stats_GPS,Scoring_G,Scoring_A,Scoring_PTS,PIM,Awards
+1.0,Philipp Grubauer,30.0,55,54.0,18,31,5,164,1479,1315,0.889,3.16,2,3111:25,18,0.333,10,119,-26.4,3.26,5.5,0,1,1,0,
+2.0,Chris Driedger,27.0,27,24.0,9,14,1,73,722,649,0.899,2.96,1,1478:24,9,0.375,3,109,-5.8,3.04,3.4,0,0,0,4,
+3.0,Joey Daccord,25.0,5,4.0,0,4,0,21,140,119,0.85,4.3,0,293:13,0,0.0,3,161,-8.0,4.5,0.0,0,0,0,0,
